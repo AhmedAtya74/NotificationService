@@ -6,7 +6,7 @@
 1. Class diagram for Notification Service
 > > include design for notification service
 
-2. NotificationService
+2. NotificationService API WITH  MVC
 > > include design for notification service **API WITH MVC**
 
 3. create 
