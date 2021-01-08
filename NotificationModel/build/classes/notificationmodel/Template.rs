@@ -1,0 +1,6 @@
+notificationmodel.Channel
+notificationmodel.Language
+notificationservice.Language
+notificationservice.Channel
+notificationmodel.Template
+notificationservice.Template
