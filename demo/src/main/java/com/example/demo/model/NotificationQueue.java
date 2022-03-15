@@ -2,6 +2,8 @@ package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+// responsible for push notification 
+
 public class NotificationQueue {
 
 	private int notificationId;
