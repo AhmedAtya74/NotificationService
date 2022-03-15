@@ -13,10 +13,10 @@ import com.mysql.jdbc.Statement;
 
 @org.springframework.stereotype.Repository("SQL")
 
-public class SQLRepository implements Repository {
+public class SQLRepository implements Repository, DefaultConnection {
 
 	@Override
-	public boolean createNotificationTemplate(Template template) {
+	public boolean createNotificationTemplate(Template template) throws SQLException {
 
 		int ID = template.getId();
 		String content = template.getContent();
@@ -24,229 +24,109 @@ public class SQLRepository implements Repository {
 		Language language = template.getLanguage();
 		Channel channel = template.getChannel();
 
-		Connection conn = null;
-		Statement stmt = null;
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			conn = (Connection) DriverManager.getConnection(
-					"jdbc:mysql://localhost:3306/notificationservice?" + "autoReconnect=true&useSSL=false", "root",
-					"Eagle01113986309");
-			stmt = (Statement) conn.createStatement();
+		Connection defaultConnection = connectToDatabase();
+		Statement statement = (Statement) defaultConnection.createStatement();
 
-			String sql = "INSERT INTO `notificationtemplate`(`notificationTemplateID`, `subject`, `content`, `type`, `language`) VALUES ('"
-					+ ID + "'  , '" + subject + "'  , '" + content + "', '" + channel + "','" + language + "' );";
-			((java.sql.Statement) stmt).executeUpdate(sql);
-			return true;
+		String insertQuery = "INSERT INTO `notificationtemplate"
+				+ "`(`notificationTemplateID`, `subject`, `content`, `type`, `language`)" + " VALUES ('" + ID + "'  , '"
+				+ subject + "'  , '" + content + "', '" + channel + "','" + language + "' );";
 
-		} catch (SQLException se) {
-
-			se.printStackTrace();
-		} catch (Exception e) {
-
-			e.printStackTrace();
-		} finally {
-
-			try {
-				if (stmt != null)
-					conn.close();
-			} catch (SQLException se) {
-			}
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}
-		}
-
-		return false;
+		statement.executeUpdate(insertQuery);
+		statement.close();
+		return true;
 	}
 
 	@Override
-	public Template readNotificationTemplate(int templateId) {
-		try {
+	public Template readNotificationTemplate(int templateId) throws SQLException {
 
-			Class.forName("com.mysql.jdbc.Driver");
+		Connection defaultConnection = connectToDatabase();
+		Statement statement = (Statement) defaultConnection.createStatement();
 
-		} catch (ClassNotFoundException ex) {
-			System.out.println("mysql not found");
+		String selectQuery = "SELECT `notificationTemplateID`, `subject`, `content`, `type`, `language` FROM `notificationtemplate` WHERE notificationTemplateID="
+				+ templateId + "; ";
+
+		ResultSet result = statement.executeQuery(selectQuery);
+		while (result.next()) {
+			int id = result.getInt("notificationTemplateID");
+			String subject = result.getString("subject");
+			String content = result.getString("content");
+			String channel = result.getString("type");
+			String langauge = result.getString("language");
+
+			Template template = new Template(id, subject, content, (Language) Language.valueOf(langauge),
+					(Channel) Channel.valueOf(channel));
+
+			return template;
 		}
-		Connection conn = null;
-		Template template = null;
-		try {
-			conn = (Connection) DriverManager.getConnection(
-					"jdbc:mysql://localhost:3306/notificationservice?" + "autoReconnect=true&useSSL=false", "root",
-					"Eagle01113986309");
-			String query = "SELECT `notificationTemplateID`, `subject`, `content`, `type`, `language` FROM `notificationtemplate` WHERE notificationTemplateID="
-					+ templateId + "; ";
-			Statement st = (Statement) conn.createStatement();
-			ResultSet rs = ((java.sql.Statement) st).executeQuery(query);
 
-			while (rs.next()) {
-				int id = rs.getInt("notificationTemplateID");
-				String subject = rs.getString("subject");
-				String content = rs.getString("content");
-				String channel = rs.getString("type");
-				String langauge = rs.getString("language");
-				template = new Template(id, subject, content, (Language) Language.valueOf(langauge),
-						(Channel) Channel.valueOf(channel));
-				return template;
-			}
-
-			((Connection) st).close();
-		} catch (SQLException ex) {
-			System.out.println("not connected");
-		} finally {
-			try {
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return template;
 	}
 
 	@Override
-	public boolean updateNotificationTemplate(int templateId, Template newTemplate) {
+	public boolean updateNotificationTemplate(int templateId, Template newTemplate) throws SQLException {
 
 		int ID = templateId;
 		String content = newTemplate.getContent();
 		String subject = newTemplate.getSubject();
 		Language language = newTemplate.getLanguage();
 		Channel channel = newTemplate.getChannel();
-		Connection conn = null;
-		Statement stmt = null;
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			conn = (Connection) DriverManager.getConnection(
-					"jdbc:mysql://localhost:3306/notificationservice?" + "autoReconnect=true&useSSL=false", "root",
-					"Eagle01113986309");
-			stmt = (Statement) conn.createStatement();
 
-			String sql = "UPDATE `notificationtemplate` SET `notificationTemplateID`='" + ID + "', `subject`='"
-					+ subject + "' ,`content`='" + content + "',`type`='" + channel + "' ,`language`='" + language
-					+ "' WHERE notificationTemplateID= " + templateId + ";";
-			((java.sql.Statement) stmt).executeUpdate(sql);
+		Connection defaultConnection = connectToDatabase();
+		Statement statement = (Statement) defaultConnection.createStatement();
 
-			System.out.println("notification updated");
-			return true;
-		} catch (SQLException se) {
+		String updateQuery = "UPDATE `notificationtemplate` SET " + "`notificationTemplateID`='" + ID + "',"
+				+ " `subject`='" + subject + "' ," + "`content`='" + content + "',`type`='" + channel + "' ,"
+				+ "`language`='" + language + "' WHERE notificationTemplateID= " + templateId + ";";
 
-			se.printStackTrace();
-		} catch (Exception e) {
+		statement.executeUpdate(updateQuery);
 
-			e.printStackTrace();
-		} finally {
-
-			try {
-				if (stmt != null)
-					conn.close();
-			} catch (SQLException se) {
-			}
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}
-		}
-		return false;
+		// System.out.println("notification updated");
+		return true;
 	}
 
 	@Override
-	public boolean deleteNotificationTemplate(int templateId) {
-		Connection conn = null;
-		Statement stmt = null;
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			conn = (Connection) DriverManager.getConnection(
-					"jdbc:mysql://localhost:3306/notificationservice?" + "autoReconnect=true&useSSL=false", "root",
-					"Eagle01113986309");
-			stmt = (Statement) conn.createStatement();
+	public boolean deleteNotificationTemplate(int templateId) throws SQLException {
 
-			String sql = "DELETE FROM `notificationtemplate` WHERE notificationTemplateID= " + templateId + ";";
-			((java.sql.Statement) stmt).executeUpdate(sql);
+		Connection defaultConnection = connectToDatabase();
+		Statement statement = (Statement) defaultConnection.createStatement();
 
-			System.out.println("notification deleted");
-			return true;
+		String deleteQuery = "DELETE FROM `notificationtemplate` WHERE notificationTemplateID= " + templateId + ";";
+		statement.executeUpdate(deleteQuery);
 
-		} catch (SQLException se) {
-
-			se.printStackTrace();
-		} catch (Exception e) {
-
-			e.printStackTrace();
-		} finally {
-
-			try {
-				if (stmt != null)
-					conn.close();
-			} catch (SQLException se) {
-			}
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}
-		}
-		return false;
+		// System.out.println("Notification Deleted.");
+		return true;
 	}
 
 	@Override
-	public boolean sendNotification(Template notification) {
+	public boolean sendNotification(Template notification) throws SQLException {
 
-		Connection conn = null;
-		Statement stmt = null;
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			conn = (Connection) DriverManager.getConnection(
-					"jdbc:mysql://localhost:3306/notificationservice?" + "autoReconnect=true&useSSL=false", "root",
-					"Eagle01113986309");
-			stmt = (Statement) conn.createStatement();
-			Channel type = notification.getChannel();
-			if (type.equals(Channel.EMAIL)) {
-				String sql = "INSERT INTO `sendbyemail`(`NotificationID`, `subject`, `content`, `channel`, `language`) VALUES ('"
-						+ notification.getId() + "'  , '" + notification.getSubject() + "'  , '"
-						+ notification.getContent() + "', '" + notification.getChannel() + "','"
-						+ notification.getLanguage() + "' );";
-				((java.sql.Statement) stmt).executeUpdate(sql);
+		Connection defaultConnection = connectToDatabase();
+		Statement statement = (Statement) defaultConnection.createStatement();
 
-				System.out.println("notification is send by email");
-				return true;
-			} else if (type.equals(Channel.SMS)) {
-				String sql = "INSERT INTO `sendbysms`(`notificationID`, `subject`, `content`, `channel`, `language`) VALUES ('"
-						+ notification.getId() + "'  , '" + notification.getSubject() + "'  , '"
-						+ notification.getContent() + "', '" + notification.getChannel() + "','"
-						+ notification.getLanguage() + "' );";
-				((java.sql.Statement) stmt).executeUpdate(sql);
-				System.out.println("notification is send by sms");
-				return true;
-			} else
-				System.out.println("notification is not send");
-		} catch (SQLException se) {
+		Channel type = notification.getChannel();
+		if (type.equals(Channel.EMAIL)) {
+			String insertQuery = "INSERT INTO `sendbyemail`(`NotificationID`, `subject`, `content`, `channel`, `language`)"
+					+ " VALUES ('" + notification.getId() + "'  , '" + notification.getSubject() + "'  , '"
+					+ notification.getContent() + "', '" + notification.getChannel() + "','"
+					+ notification.getLanguage() + "' );";
 
-			se.printStackTrace();
-		} catch (Exception e) {
+			statement.executeUpdate(insertQuery);
+			// System.out.println("Notification is sent by email");
 
-			e.printStackTrace();
-		} finally {
+			return true;
 
-			try {
-				if (stmt != null)
-					conn.close();
-			} catch (SQLException se) {
-			}
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}
+		} else if (type.equals(Channel.SMS)) {
+			String insertQuery = "INSERT INTO `sendbysms`(`notificationID`, `subject`, `content`, `channel`, `language`) "
+					+ "VALUES ('" + notification.getId() + "'  , '" + notification.getSubject() + "'  , '"
+					+ notification.getContent() + "', '" + notification.getChannel() + "','"
+					+ notification.getLanguage() + "' );";
+
+			statement.executeUpdate(insertQuery);
+			// System.out.println("Notification is sent by SMS");
+			return true;
+		} else {
+			// System.out.println("Channel is not provided")
+			return false;
 		}
-		return false;
 
 	}
 }
