@@ -2,6 +2,7 @@ package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+// responsible for generate notification templates 
 public class Template {
 	public enum Language {
 		ARABIC, ENGLISH;
