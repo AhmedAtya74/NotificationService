@@ -19,6 +19,7 @@ public class SMS implements Isend {
 		if (!result.next()) {
 			return false;
 		}
+		
 		int rand = (int) (Math.random() % 2);
 		String body = PreparationToSend(result.getString("body"), placeHolders);
 		String insertQuery = "INSERT INTO SMS values(" + "\"" + body + "\"" + ",\"" + result.getString("subject")
