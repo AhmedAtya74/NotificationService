@@ -17,6 +17,8 @@ So, the "management" of those notifications templates, their subjects, content, 
 ## 2- Notification "Queuing" & "Sending"
 When your "notifications module" gets invoked to send a "notification" to an email address or phone number, it would be a good design decision to NOT actually send the notification within the scope of this "invocation", because this would be mean you will hang the "invoker" till the actual message is sent. So what should we do ? you should implement a "notifications Queue" , where you insert "notifications" that ARE TO BE SENT and that's it, your job is done, and the invoker doesn't have  to wait for anything.
 
+# Architecture 
+![image](https://user-images.githubusercontent.com/64374947/158812932-87adf6ed-98ed-4154-a20d-59ccd91ab8f0.png)
 
 # Technology:
 > - Eclips IDE For Enterprise Java Developer
