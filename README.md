@@ -12,8 +12,6 @@ We will implement the "notification module" as API service "Src code for API exi
 > - Spring Boot
 
 
-# Architecture:
-![image](https://user-images.githubusercontent.com/64374947/141642809-42558115-139e-4f17-a654-ec1c9f006e47.png)
 
 
 
