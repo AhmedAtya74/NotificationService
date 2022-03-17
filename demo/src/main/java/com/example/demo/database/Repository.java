@@ -14,5 +14,4 @@ public interface Repository {
 
 	public boolean deleteNotificationTemplate(int templateId) throws SQLException;
 
-	public boolean sendNotification(Template notification) throws SQLException;
 }
