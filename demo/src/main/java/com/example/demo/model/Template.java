@@ -2,14 +2,9 @@ package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-// responsible for generate notification templates 
 public class Template {
 	public enum Language {
 		ARABIC, ENGLISH;
-	};
-
-	public enum Channel {
-		EMAIL, SMS
 	};
 
 	// @NotBlank
@@ -20,18 +15,13 @@ public class Template {
 	private String content;
 	// @NotBlank
 	private Language language;	
-	// @NotBlank
-	private Channel channel;
-	// @NotBlank
 
 	public Template(@JsonProperty("id") int templateId, @JsonProperty("subject") String subject,
-			@JsonProperty("content") String content, @JsonProperty("language") Language language,
-			@JsonProperty("channel") Channel channel) {
+			@JsonProperty("content") String content, @JsonProperty("language") Language language) {
 		this.templateId = templateId;
 		this.subject = subject;
 		this.content = content;
 		this.language = language;
-		this.channel = channel;
 	}
 
 	public int getId() {
@@ -48,9 +38,5 @@ public class Template {
 
 	public Language getLanguage() {
 		return this.language;
-	}
-
-	public Channel getChannel() {
-		return this.channel;
 	}
 }
