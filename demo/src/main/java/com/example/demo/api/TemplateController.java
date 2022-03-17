@@ -41,7 +41,6 @@ public class TemplateController {
 	}
 
 	@DeleteMapping(path = "{id}")
-	
 	public boolean deleteById(@PathVariable("id") int templateId) {
 		return templateService.deleteTemplate(templateId);
 	}
