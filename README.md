@@ -1,4 +1,4 @@
-# Notification-Service
+# Notification Service
 
 The project will NOT be an entire software system, but rather a component within the system that fulfills a need, provides a feature, that serves a greater PURPOSE within the WHOLE purpose of the software. We are going to simulate real situation such as Notification module.
 
