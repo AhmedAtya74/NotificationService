@@ -22,14 +22,13 @@ public class SQLRepository implements Repository, DefaultConnection {
 		String content = template.getContent();
 		String subject = template.getSubject();
 		Language language = template.getLanguage();
-		Channel channel = template.getChannel();
 
 		Connection defaultConnection = connectToDatabase();
 		Statement statement = (Statement) defaultConnection.createStatement();
 
 		String insertQuery = "INSERT INTO `notificationtemplate"
 				+ "`(`notificationTemplateID`, `subject`, `content`, `type`, `language`)" + " VALUES ('" + ID + "'  , '"
-				+ subject + "'  , '" + content + "', '" + channel + "','" + language + "' );";
+				+ subject + "'  , '" + content + "', '" + language + "' );";
 
 		statement.executeUpdate(insertQuery);
 		statement.close();
@@ -53,8 +52,7 @@ public class SQLRepository implements Repository, DefaultConnection {
 			String channel = result.getString("type");
 			String langauge = result.getString("language");
 
-			Template template = new Template(id, subject, content, (Language) Language.valueOf(langauge),
-					(Channel) Channel.valueOf(channel));
+			Template template = new Template(id, subject, content, (Language) Language.valueOf(langauge));
 
 			return template;
 		}
@@ -68,14 +66,13 @@ public class SQLRepository implements Repository, DefaultConnection {
 		String content = newTemplate.getContent();
 		String subject = newTemplate.getSubject();
 		Language language = newTemplate.getLanguage();
-		Channel channel = newTemplate.getChannel();
 
 		Connection defaultConnection = connectToDatabase();
 		Statement statement = (Statement) defaultConnection.createStatement();
 
 		String updateQuery = "UPDATE `notificationtemplate` SET " + "`notificationTemplateID`='" + ID + "',"
-				+ " `subject`='" + subject + "' ," + "`content`='" + content + "',`type`='" + channel + "' ,"
-				+ "`language`='" + language + "' WHERE notificationTemplateID= " + templateId + ";";
+				+ " `subject`='" + subject + "' ," + "`content`='" + content + "'," + "`language`='" + language
+				+ "' WHERE notificationTemplateID= " + templateId + ";";
 
 		statement.executeUpdate(updateQuery);
 
@@ -96,37 +93,4 @@ public class SQLRepository implements Repository, DefaultConnection {
 		return true;
 	}
 
-	@Override
-	public boolean sendNotification(Template notification) throws SQLException {
-
-		Connection defaultConnection = connectToDatabase();
-		Statement statement = (Statement) defaultConnection.createStatement();
-
-		Channel type = notification.getChannel();
-		if (type.equals(Channel.EMAIL)) {
-			String insertQuery = "INSERT INTO `sendbyemail`(`NotificationID`, `subject`, `content`, `channel`, `language`)"
-					+ " VALUES ('" + notification.getId() + "'  , '" + notification.getSubject() + "'  , '"
-					+ notification.getContent() + "', '" + notification.getChannel() + "','"
-					+ notification.getLanguage() + "' );";
-
-			statement.executeUpdate(insertQuery);
-			// System.out.println("Notification is sent by email");
-
-			return true;
-
-		} else if (type.equals(Channel.SMS)) {
-			String insertQuery = "INSERT INTO `sendbysms`(`notificationID`, `subject`, `content`, `channel`, `language`) "
-					+ "VALUES ('" + notification.getId() + "'  , '" + notification.getSubject() + "'  , '"
-					+ notification.getContent() + "', '" + notification.getChannel() + "','"
-					+ notification.getLanguage() + "' );";
-
-			statement.executeUpdate(insertQuery);
-			// System.out.println("Notification is sent by SMS");
-			return true;
-		} else {
-			// System.out.println("Channel is not provided")
-			return false;
-		}
-
-	}
 }
